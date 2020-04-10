@@ -310,6 +310,11 @@ func rotateAndFlipImage(image *C.VipsImage, o Options) (*C.VipsImage, bool, erro
 		}
 	}
 
+	if o.Rotate > 0 {
+		rotated = true
+		image, err = vipsRotate(image, getAngle(o.Rotate))
+	}
+
 	if o.Flip {
 		rotated = true
 		image, err = vipsFlip(image, Vertical)
@@ -318,11 +323,6 @@ func rotateAndFlipImage(image *C.VipsImage, o Options) (*C.VipsImage, bool, erro
 	if o.Flop {
 		rotated = true
 		image, err = vipsFlip(image, Horizontal)
-	}
-
-	if o.Rotate > 0 {
-		rotated = true
-		image, err = vipsRotate(image, getAngle(o.Rotate))
 	}
 
 	return image, rotated, err
@@ -532,7 +532,6 @@ func calculateRotationAndFlip(image *C.VipsImage, angle Angle) (Angle, bool) {
 		break
 	case 2:
 		flip = true
-		rotate = D180
 		break // flip 1
 	case 7:
 		flip = true
@@ -540,6 +539,7 @@ func calculateRotationAndFlip(image *C.VipsImage, angle Angle) (Angle, bool) {
 		break // flip 6
 	case 4:
 		flip = true
+		rotate = D180
 		break // flip 3
 	case 5:
 		flip = true
