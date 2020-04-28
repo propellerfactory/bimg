@@ -111,9 +111,8 @@ func Initialize() {
 	// Enable libvips cache tracing
 	if os.Getenv("VIPS_TRACE") != "" {
 		C.vips_enable_cache_set_trace()
+		log.Printf("HEIF is %v", int(C.vips_type_find_bridge(C.HEIF)))
 	}
-
-	log.Printf("heif is %v", int(C.vips_type_find_bridge(C.HEIF)))
 
 	initialized = true
 }
