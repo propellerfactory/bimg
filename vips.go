@@ -9,6 +9,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"os"
 	"runtime"
@@ -111,6 +112,8 @@ func Initialize() {
 	if os.Getenv("VIPS_TRACE") != "" {
 		C.vips_enable_cache_set_trace()
 	}
+
+	log.Printf("heif is %v", int(C.vips_type_find_bridge(C.HEIF)))
 
 	initialized = true
 }
@@ -642,10 +645,16 @@ func vipsImageType(buf []byte) ImageType {
 	if IsTypeSupported(MAGICK) && strings.HasSuffix(readImageType(buf), "MagickBuffer") {
 		return MAGICK
 	}
-	// NOTE: libheif current;y only supports heic sub types; see:
+	// NOTE: libheif currently only supports heic sub types; see:
 	//   https://github.com/strukturag/libheif/issues/83#issuecomment-421427091
 	if IsTypeSupported(HEIF) && buf[4] == 0x66 && buf[5] == 0x74 && buf[6] == 0x79 && buf[7] == 0x70 &&
 		buf[8] == 0x68 && buf[9] == 0x65 && buf[10] == 0x69 && buf[11] == 0x63 {
+		// This is a HEIC file
+		return HEIF
+	}
+	if IsTypeSupported(HEIF) && buf[4] == 0x66 && buf[5] == 0x74 && buf[6] == 0x79 && buf[7] == 0x70 &&
+		buf[8] == 0x6d && buf[9] == 0x69 && buf[10] == 0x66 && buf[11] == 0x31 {
+		// This is a HEIF file
 		return HEIF
 	}
 
