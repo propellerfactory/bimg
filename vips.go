@@ -725,3 +725,25 @@ func vipsDrawWatermark(image *C.VipsImage, o WatermarkImage) (*C.VipsImage, erro
 
 	return out, nil
 }
+
+func vipsPremultiply(input *C.VipsImage) (*C.VipsImage, error) {
+	var image *C.VipsImage
+	defer C.g_object_unref(C.gpointer(input))
+	err := C.vips_premultiply_bridge(input, &image)
+	if err != 0 {
+		return nil, catchVipsError()
+	}
+
+	return image, nil
+}
+
+func vipsUnpremultiply(input *C.VipsImage) (*C.VipsImage, error) {
+	var image *C.VipsImage
+	defer C.g_object_unref(C.gpointer(input))
+	err := C.vips_unpremultiply_bridge(input, &image)
+	if err != 0 {
+		return nil, catchVipsError()
+	}
+
+	return image, nil
+}

@@ -89,6 +89,17 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 		residual = float64(shrink) / factor
 	}
 
+	sourceImageHasAlpha := vipsHasAlpha(image)
+	// if there is alpha in the image, premultiply before performing any
+	//  graphics operations to avoid alpha related artifacts
+	//  https://github.com/libvips/libvips/issues/291
+	if sourceImageHasAlpha {
+		image, err = vipsPremultiply(image)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Error performing premultiply because %v.", err.Error()))
+		}
+	}
+
 	// Zoom image, if necessary
 	image, err = zoomImage(image, o.Zoom)
 	if err != nil {
@@ -127,6 +138,16 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 	image, err = imageFlatten(image, imageType, o)
 	if err != nil {
 		return nil, err
+	}
+
+	// if there is alpha in the image, reverse the premultiply we performed before any
+	//  graphics operations to avoid alpha related artifacts
+	//  https://github.com/libvips/libvips/issues/291
+	if sourceImageHasAlpha {
+		image, err = vipsUnpremultiply(image)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Error performing unpremultiply because %v.", err.Error()))
+		}
 	}
 
 	return saveImage(image, o)

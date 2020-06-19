@@ -592,3 +592,13 @@ int vips_find_trim_bridge(VipsImage *in, int *top, int *left, int *width, int *h
 	return 0;
 #endif
 }
+
+int
+vips_premultiply_bridge(VipsImage *in, VipsImage **out) {
+	return vips_premultiply(in, out, NULL);
+}
+
+int
+vips_unpremultiply_bridge(VipsImage *in, VipsImage **out) {
+	return vips_unpremultiply(in, out, NULL);
+}
